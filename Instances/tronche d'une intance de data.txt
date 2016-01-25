@@ -1,0 +1,15 @@
+(nb_points | premier point = dépot) (1 ligne)
+[Matrice de distance : 0->0, 0->1 ... 0->19
+1->0 ...
+...
+
+19->0 ... 19->19] //les temps de services sont pris en compte dans les distances pour simplifier (20 lignes)
+fenêtres de temps (1 par point)
+0 1000 (dépot, temps extrèmes)
+122 344 (client 1)
+... ...
+
+... ... (1 ligne par point -> 20 lignes)
+
+Total : pour N points, il y a 2*N + 1 lignes
+tous les nombres ne sont pas des entiers

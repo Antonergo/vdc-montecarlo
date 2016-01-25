@@ -1,0 +1,3 @@
+#1ere ligne inutile
+
+nom de l'instance Data 			cout total (déplacement) (CV : ???) (ordre de tournée)
