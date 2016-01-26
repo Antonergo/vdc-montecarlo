@@ -1,3 +1,13 @@
+#temporary buffers
+*~
+
+#compressed stuff
+*.zip
+*.tar
+
+#unused files
+*.ods
+
 # Compiled Object files
 *.slo
 *.lo
@@ -23,6 +33,6 @@
 *.lib
 
 # Executables
-*.exe
+*/exe
 *.out
 *.app

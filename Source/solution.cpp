@@ -1,10 +1,13 @@
 #include "solution.hpp"
+#include "stats.hpp"
+
 #include <cstring>
 
 #include <iostream>
 #include <fstream> //ifstream
 //#include <sstream>
 #include <stdlib.h> //exit()
+
 
 solution::solution(std::string & solname, data * d)
 {
@@ -128,6 +131,7 @@ bool 	solution::check_normal(temps taux)
 	
 	bool res = true;
 	
+	//allouer la classe de stats
 	
 	if (!tournee.size())
 	{
@@ -159,7 +163,7 @@ bool 	solution::check_normal(temps taux)
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
-			//TODO : extraire le temps d'attente ici
+			//************ TODO : extraire le temps d'attente ici dans la classe Stats
 			temps_courant = donnees->get_fen_deb(cour);
 			
 			std::cout << "WAIT ... ";

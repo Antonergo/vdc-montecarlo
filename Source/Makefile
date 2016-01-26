@@ -2,7 +2,7 @@ CC = g++
 
 OPT = -Wall -Wextra -ansi -pedantic -g
 LIB = 
-OBJ = main.o data.o solution.o
+OBJ = main.o data.o solution.o stats.o
 
 exe: $(OBJ)
 	$(CC) $(OBJ) -o exe $(LIB)
@@ -15,6 +15,9 @@ data.o: data.cpp data.hpp
 
 solution.o: solution.cpp solution.hpp
 	$(CC) -c solution.cpp $(OPT)
+
+stats.o: stats.cpp stats.hpp
+	$(CC) -c stats.cpp $(OPT)
 
 clean:
 	rm $(OBJ)

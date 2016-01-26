@@ -16,10 +16,10 @@ class data
 	
 	int nb_sommets;
 	
-	std::vector <temps> distances;
+	std::vector <temps> distances; //matrice
 	
-	std::vector <temps> fen_deb;
-	std::vector <temps> fen_fin;
+	std::vector <temps> fen_deb; //vecteur
+	std::vector <temps> fen_fin; //vecteur
 	
 	
 	
