@@ -1,0 +1,44 @@
+0 : Stucture modifiée pour prendre en compte plusieurs tournées
+1 : Lecture de l'instance
+2 :	Evaluer une tournée deterministiquement (incluant de tourver  la date de début reduite(Dr) )
+		-> Bool : tournée possible
+		-> réel[] : date de debut sur chaque sommet (X_i)
+		-> réel : durée totale de la tournée (Fin - Dr) 
+		"-> réel[] : On peu aussi calculer la proba que sur chaque sommet la contrainte soit valide 
+			----> je vous expliquerai comment si on a le temps"
+		"-> réel : Critère de robustesse un truc qui se rapproche de la PROBA que la tournée soit valide
+			----> je vous expliquerai comment si on a le temps"
+		...
+		...
+		...
+		
+3 : faire la même chose pour l'ensemble des tournées de la solution 
+4 : Pour une date de depart fixée (comprise entre 0 et TDr ) 
+	et pour une valeur de variance Sigma: 
+	faire 1 evaluation evaluation Stochastique
+		-> Bool : tournée possible
+		-> interger : attente
+		-> interger : durée totale de la tournée (Fin - Dr) 
+		-> interger[] : date de debut sur chaque sommet (X_i) 
+		-> Si violation des Fenetres de temps max : 
+				-> réel : somme des violations
+				-> integer[] : sommet sur lesquels il y a violation
+				-> réel[] : Combien de violation sur les sommets
+				-> réel[] : différence par rapport à la date deterministe
+				
+				...
+				...
+				...
+		...
+		...
+		...
+5 : MOnte Carlo ( executer X fois la méthode precedente)
+	"On peut faire un truc malin on commence par un petit nombre on analyse les resultats"
+	"jusqu'a converger ... "
+	MAIS on vera quand le 1,2,3,4 seront verifiés
+	On trouvera aussi plein de critères
+	-> réel : proba d'être réalisable 
+	...
+				...
+	
+----------------------------------------------------
