@@ -32,9 +32,15 @@
 		...
 		...
 		...
+		
+	On peut aussi faire un tirage est regarder à quel date sachant le tirage des temps de trajets
+	il fallais partir du dépôt... 
+	
 5 : MOnte Carlo ( executer X fois la méthode precedente)
 	"On peut faire un truc malin on commence par un petit nombre on analyse les resultats"
 	"jusqu'a converger ... "
+	On pense aussi a ce qu'a proposé Paul avec la Dichotomie c'est une très bonne idée.
+	
 	MAIS on vera quand le 1,2,3,4 seront verifiés
 	On trouvera aussi plein de critères
 	-> réel : proba d'être réalisable 
