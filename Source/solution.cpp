@@ -24,37 +24,41 @@ solution::solution(std::string & solname, data * d)
   donnees = d;
   filename = donnees->get_name();
   nb_sommets = donnees->get_nb_sommets();
-  
+  tournee.clear();
+
   //std::cout << "nb_sommets = " << nb_sommets << std::endl;
-  
+
   //trouver la bonne ligne (comparer filename)
-	
+
 	std::string str;
 	do
 	{
 		is >> str;
-	} while ((!is.eof()) && str != filename); //on s'arrÃªte sur soit la bonne ligne de trouvÃ©e, soit EOF.
+	} while ((!is.eof()) && str != filename); //on s'arrête sur soit la bonne ligne de trouvée, soit EOF.
 	if (is.eof())
 	{
 		std::cerr << "ERROR, solution not found for : " << filename << std::endl;
 	}
 	else
 	{
-	  //sortir le temps total et se caler sur la tournÃ©e.
+	  //sortir le temps total et se caler sur la tournée.
 	  is >> total >> str;
-	  //lire la tournee
-	  for (int i = 1; i< nb_sommets; ++i)
+	  //creer la tournee
+
+	  //tournee.push_back(id_depot);
+	  for (int i = 0; i< nb_sommets - 1; ++i)
 	  {
 		is >> client;
 		tournee.push_back(client);
 	  }
+  	  //tournee.push_back(id_depot);
 	}
 }
 
 void solution::display(std::ostream & os)
-{	
+{
 	os << "cout total deterministe : " << total << "\nordre de tournee : ";
-	for (int i = 0; i< donnees->get_nb_sommets(); ++i)
+	for (unsigned i = 0; i< tournee.size(); ++i)
 	{
 		os << tournee[i] << " ";
 	}
@@ -69,51 +73,51 @@ bool 	solution::check_deterministe()
 	int prec;
 	int cour;
 	unsigned index = 1;
-	
+
 	bool res = true;
-	
-	
+
+
 	if (!tournee.size())
 	{
 	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
 		exit (EXIT_FAILURE);
 	}
-	
+
 	prec = 0;
 	cour = tournee[0];
-	
-	while (res && index <= tournee.size()+1)
+
+	while (res && index < tournee.size())
 	{
 		//std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour) << std::endl;
 
 		temps_courant += donnees->get_dist(prec,cour);
 		total_cout += donnees->get_dist(prec,cour);
-		
-		
-		//Le cout ne dÃ©pend pas du temps passÃ©, mais uniquement de la distance parcourue
+
+
+		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
 			temps_courant = donnees->get_fen_deb(cour);
-			
+
 			//std::cout << "WAIT ... ";
 		}
 		else
-		
+
 		if ( temps_courant > donnees->get_fen_fin(cour) )
 		{
 			res = false;
-			
+
 			//std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
 		}
-		
+
 		prec = cour;
-		cour = tournee[index];
-		
+		cour = tournee[index]; //todo : put it on the beginning of the loop (and deal with Depot in beginning and end of thing)
+
 		++index;
 	}
-	
+
 	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul)" << std::endl;
-	
+
 	return res;
 }
 
@@ -128,24 +132,24 @@ bool 	solution::check_normal(temps taux)
 	int prec;
 	int cour;
 	unsigned index = 1;
-	
+
 	bool res = true;
-	
+
 	//allouer la classe de stats
-	
+
 	if (!tournee.size())
 	{
 	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
 		exit (EXIT_FAILURE);
 	}
-	
+
 	prec = 0;
 	cour = tournee[0];
-	
-	while (res && index <= tournee.size()+1)
+
+	while (res && index <= tournee.size())
 	{
-		
-		
+
+
 		dist_fixe = donnees->get_dist(prec,cour);
 		//RNG goes here
 		dist_norm = loi_normale()(dist_fixe, dist_fixe*taux/100);
@@ -153,46 +157,46 @@ bool 	solution::check_normal(temps taux)
 		{
 			dist_norm = 10.0;
 		}
-		
+
 		std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm << std::endl;
-		
+
 		temps_courant += dist_norm;
 		total_cout += dist_norm;
-		
-		
-		//Le cout ne dÃ©pend pas du temps passÃ©, mais uniquement de la distance parcourue
+
+
+		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
 			//************ TODO : extraire le temps d'attente ici dans la classe Stats
 			temps_courant = donnees->get_fen_deb(cour);
-			
+
 			std::cout << "WAIT ... ";
 		}
 		else
-		
+
 		if ( temps_courant > donnees->get_fen_fin(cour) )
 		{
 			res = false;
-			
+
 			std::cout << "Echec de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
-		
-		//tester si quand on Ã©choue que les temps correspondent bien ! (Ã§a a l'air convaincant)
+
+		//tester si quand on échoue que les temps correspondent bien ! (ça a l'air convaincant)
 		}
-		
+
 		prec = cour;
 		cour = tournee[index];
-		
+
 		++index;
 	}
-	
-	
+
+
 	if (res) //reussite du parcours
 	{
 		std::cout << "distance totale : " << total << " (deterministe) ; " << total_cout << " (calcule)" << std::endl;
 	}
 	else //echec du test
 	{
-		//sortir l'index/l'ID Client (prÃ©alablement enregistrÃ© dans notre instance
+		//sortir l'index/l'ID Client (préalablement enregistré dans notre instance
 	}
 	return res;
 }
