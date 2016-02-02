@@ -41,17 +41,19 @@ solution::solution(std::string & solname, data * d)
 	}
 	else
 	{
+      //donner le numéro de dépot
+      id_depot = 0;
 	  //sortir le temps total et se caler sur la tournée.
 	  is >> total >> str;
 	  //creer la tournee
 
-	  //tournee.push_back(id_depot);
+	  tournee.push_back(id_depot);
 	  for (int i = 0; i< nb_sommets - 1; ++i)
 	  {
 		is >> client;
 		tournee.push_back(client);
 	  }
-  	  //tournee.push_back(id_depot);
+  	  tournee.push_back(id_depot);
 	}
 }
 
@@ -69,13 +71,13 @@ void solution::display(std::ostream & os)
 bool 	solution::check_deterministe()
 {
 	temps total_cout = 0.0;
+	temps total_wait = 0.0;
 	temps temps_courant = 0.0;
 	int prec;
 	int cour;
-	unsigned index = 1;
+	unsigned index = 0;
 
 	bool res = true;
-
 
 	if (!tournee.size())
 	{
@@ -83,23 +85,23 @@ bool 	solution::check_deterministe()
 		exit (EXIT_FAILURE);
 	}
 
-	prec = 0;
-	cour = tournee[0];
-
-	while (res && index < tournee.size())
+	while (res && index < tournee.size() - 1)
 	{
-		//std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour) << std::endl;
+		prec = tournee[index];
+		cour = tournee[index+1];
 
-		temps_courant += donnees->get_dist(prec,cour);
+		temps_courant += donnees->get_dist(prec,cour); //todo : ajouter temps de service
 		total_cout += donnees->get_dist(prec,cour);
 
+        std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour) << std::endl;
 
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
+		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
-			//std::cout << "WAIT ... ";
+			std::cout << "WAIT ... ";
 		}
 		else
 
@@ -110,18 +112,67 @@ bool 	solution::check_deterministe()
 			//std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
 		}
 
-		prec = cour;
-		cour = tournee[index]; //todo : put it on the beginning of the loop (and deal with Depot in beginning and end of thing)
-
 		++index;
 	}
 
-	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul)" << std::endl;
+	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
 	return res;
 }
 
+bool    solution::check_reverse_deterministe()
+{
+    temps total_cout = 0.0;
+	temps total_overlimit = 0.0;
+	temps temps_courant = donnees->get_fen_fin(id_depot);
+	int prec;
+	int cour;
+	unsigned index = tournee.size() - 1;
 
+	bool res = true;
+
+	if (!tournee.size())
+	{
+	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
+		exit (EXIT_FAILURE);
+	}
+
+	while (res && index > 0)
+	{
+		prec = tournee[index];
+		cour = tournee[index-1];
+
+		temps_courant -= donnees->get_dist(prec,cour); //todo : enlever aussi le temps de service
+		total_cout += donnees->get_dist(prec,cour);
+
+        std::cout << "(" << prec << " <- " << cour << ") : "  << donnees->get_dist(prec,cour) << std::endl;
+
+		//a l'envers, si on arrive après la fin, on y revient, en y ajoutant l'overlimit.
+		if ( temps_courant > donnees->get_fen_fin(cour) )
+		{
+		    total_overlimit += temps_courant - donnees->get_fen_fin(cour);
+			temps_courant = donnees->get_fen_fin(cour);
+
+			std::cout << "OVERLIMIT ... ";
+		}
+		else
+
+		if ( temps_courant < donnees->get_fen_deb(cour) )
+		{
+		    //issue impossible, vu que le check déterministe a réussi
+		    //ce serait donc un bug de ma part .-.
+			res = false;
+
+			//std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
+		}
+
+		--index;
+	}
+
+	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
+
+	return res;
+}
 
 bool 	solution::check_normal(temps taux)
 {

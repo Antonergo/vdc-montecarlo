@@ -89,9 +89,11 @@ int main (int argc, char * argv[])
   }
   else
   {
-	  //Effectuer les tests reels ici
+	  std::cout << "la verification deterministe a reussie, on fait a l'envers." << std::endl;
 
-	  s.check_normal(10); //1 seul test à 10% de variance, pas encore d'extraction des données
+      s.check_reverse_deterministe();
+
+	  //s.check_normal(10); //1 seul test à 10% de variance, pas encore d'extraction des données
 
   }
 
