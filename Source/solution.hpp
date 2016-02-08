@@ -16,7 +16,7 @@ class loi_normale
 
 	float U;
 	float V;
-
+		
 	public :
 
 	loi_normale()
@@ -45,6 +45,8 @@ class solution
 
 	data* donnees;
 
+	temps start_min;
+	temps start_max;
 	temps total;
 
 	int id_depot;
@@ -59,17 +61,15 @@ class solution
 	int 	get_tournee(int index);
 	temps 	get_arrivee(int index);
 
-	bool 	check_deterministe();
-	bool	check_reverse_deterministe();
+	temps	get_start_min() {return start_min;}
+	temps	get_start_max() {return start_max;}
+	
+	bool 	check_deterministe(temps start = 0);
+	bool	check_reverse_deterministe(temps start = 0);
 
-	//void create_distances_normal(temps taux_pourcent);
+	bool 	check_normal(temps start, temps taux_pourcent);
 
-	bool 	check_normal(temps taux_pourcent);
-
-
-	// check_realiste : envoie des données à d'autres classes pas encore faites
-
-	void display(std::ostream & os);
+	void 	display(std::ostream & os);
 
 };
 

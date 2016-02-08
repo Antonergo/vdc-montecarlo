@@ -68,11 +68,11 @@ void solution::display(std::ostream & os)
 }
 
 
-bool 	solution::check_deterministe()
+bool 	solution::check_deterministe(temps start)
 {
 	temps total_cout = 0.0;
 	temps total_wait = 0.0;
-	temps temps_courant = 0.0;
+	temps temps_courant = start;
 	int prec;
 	int cour;
 	unsigned index = 0;
@@ -85,6 +85,8 @@ bool 	solution::check_deterministe()
 		exit (EXIT_FAILURE);
 	}
 
+	std::cout << "depart au temps " << start << std::endl;
+		
 	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
@@ -93,7 +95,7 @@ bool 	solution::check_deterministe()
 		temps_courant += donnees->get_dist(prec,cour); //todo : ajouter temps de service
 		total_cout += donnees->get_dist(prec,cour);
 
-        std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour) << std::endl;
+        std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour)  << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
@@ -114,17 +116,19 @@ bool 	solution::check_deterministe()
 
 		++index;
 	}
-
+	
+	start_min = temps_courant;
+	
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
 	return res;
 }
 
-bool    solution::check_reverse_deterministe()
+bool    solution::check_reverse_deterministe(temps end)
 {
     temps total_cout = 0.0;
 	temps total_overlimit = 0.0;
-	temps temps_courant = donnees->get_fen_fin(id_depot);
+	temps temps_courant = end;
 	int prec;
 	int cour;
 	unsigned index = tournee.size() - 1;
@@ -136,6 +140,8 @@ bool    solution::check_reverse_deterministe()
 	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
 		exit (EXIT_FAILURE);
 	}
+	
+	std::cout << "'fin' au temps " << end << std::endl;
 
 	while (res && index > 0)
 	{
@@ -145,7 +151,7 @@ bool    solution::check_reverse_deterministe()
 		temps_courant -= donnees->get_dist(prec,cour); //todo : enlever aussi le temps de service
 		total_cout += donnees->get_dist(prec,cour);
 
-        std::cout << "(" << prec << " <- " << cour << ") : "  << donnees->get_dist(prec,cour) << std::endl;
+        std::cout << "(" << prec << " <- " << cour << ") distance = "  << donnees->get_dist(prec,cour) << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//a l'envers, si on arrive après la fin, on y revient, en y ajoutant l'overlimit.
 		if ( temps_courant > donnees->get_fen_fin(cour) )
@@ -168,16 +174,18 @@ bool    solution::check_reverse_deterministe()
 
 		--index;
 	}
-
+	
+	start_max = temps_courant;
+	
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
 
 	return res;
 }
 
-bool 	solution::check_normal(temps taux)
+bool 	solution::check_normal(temps start, temps taux)
 {
 	temps total_cout = 0.0;
-	temps temps_courant = 0.0;
+	temps temps_courant = start;
 	temps dist_fixe;
 	temps dist_norm;
 	int prec;

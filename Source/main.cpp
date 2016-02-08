@@ -21,11 +21,11 @@
 // main function
 int main (int argc, char * argv[])
 {
-  std::string prefix("Instances/Data/"); //Windows
-  std::string soluce("Instances/Solutions/Sols.txt");
+  //std::string prefix("Instances/Data/"); //Windows
+  //std::string soluce("Instances/Solutions/Sols.txt");
 
-  //std::string prefix("../Instances/Data/"); //Linux
-  //std::string soluce("../Instances/Solutions/Sols.txt");
+  std::string prefix("../Instances/Data/"); //Linux
+  std::string soluce("../Instances/Solutions/Sols.txt");
 
   std::string filename("rc_207.4.txt"); //argument de départ
 
@@ -83,7 +83,7 @@ int main (int argc, char * argv[])
 
   s.display(std::cout);
   // tester la solution de manière déterministe
-  if (!s.check_deterministe())
+  if (!s.check_deterministe(0)) //set start min
   {
 	  std::cout << "la verification deterministe a echouee, il y a peu de chance qu'une vérification aleatoire reussisse" << std::endl;
   }
@@ -91,9 +91,11 @@ int main (int argc, char * argv[])
   {
 	  std::cout << "la verification deterministe a reussie, on fait a l'envers." << std::endl;
 
-      s.check_reverse_deterministe();
-
-	  //s.check_normal(10); //1 seul test à 10% de variance, pas encore d'extraction des données
+      s.check_reverse_deterministe(s.get_start_min()); //set start max
+	  
+	  std::cout << "fin min et début max de départ : " << s.get_start_min() << " , " << s.get_start_max() << std::endl;
+	  
+	  //s.check_normal(s.get_start_max(), 10); //1 seul test à 10% de variance, pas encore d'extraction des données
 
   }
 

@@ -3,22 +3,23 @@
 
 #include "data.hpp"
 
-class statistique
+class Statistique
 {
 	private :
 
-	static std::vector <temps> fen_deb;
-	static std::vector <temps> fen_fin;
-	
-	std::vector <temps> arrivee;
+	static data * donnees;
+	std::vector <temps> arrivee; //le vecteur de l'importance extreme
 	std::vector <temps> attente_vehicule; // (fen_deb - arrivee > 0)
 	
-	int failure; // si >0, il y a eu un echec
+	int position_fail; // si >0, l'echec s'est fait sur ce moment la 
 	
 	public :
 	
-	statistique();
-	~statistique();
+	Statistique();
+	~Statistique();
+	
+	static void set_data(data * donnees);
+	 
 };
 
 //void print_SVG(std::vector <statistique> tableau;) //nouvelle classe ?
