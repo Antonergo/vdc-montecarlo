@@ -72,6 +72,9 @@ bool 	solution::check_deterministe(temps start)
 {
 	temps total_cout = 0.0;
 	temps total_wait = 0.0;
+	
+	temps distance = 0.0;
+	
 	temps temps_courant = start;
 	int prec;
 	int cour;
@@ -81,7 +84,7 @@ bool 	solution::check_deterministe(temps start)
 
 	if (!tournee.size())
 	{
-	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
+	    std::cerr << "Erreur : solution vide" << std::endl;
 		exit (EXIT_FAILURE);
 	}
 
@@ -91,11 +94,13 @@ bool 	solution::check_deterministe(temps start)
 	{
 		prec = tournee[index];
 		cour = tournee[index+1];
+		
+		distance = donnees->get_dist(prec,cour);
+		
+		temps_courant += distance; //todo : prendre en compte le temps de service ? -- dans les graphes !!
+		total_cout += distance;
 
-		temps_courant += donnees->get_dist(prec,cour); //todo : ajouter temps de service
-		total_cout += donnees->get_dist(prec,cour);
-
-        std::cout << "(" << prec << " -> " << cour << ") : "<< donnees->get_dist(prec,cour)  << ", arrivee a : " <<  temps_courant << std::endl;
+        std::cout << "(" << prec << " -> " << cour << ") : "<< distance  << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
@@ -129,6 +134,7 @@ bool    solution::check_reverse_deterministe(temps end)
     temps total_cout = 0.0;
 	temps total_overlimit = 0.0;
 	temps temps_courant = end;
+	temps distance = 0.0;
 	int prec;
 	int cour;
 	unsigned index = tournee.size() - 1;
@@ -137,7 +143,7 @@ bool    solution::check_reverse_deterministe(temps end)
 
 	if (!tournee.size())
 	{
-	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
+	    std::cerr << "Erreur: solution vide" << std::endl;
 		exit (EXIT_FAILURE);
 	}
 	
@@ -147,11 +153,13 @@ bool    solution::check_reverse_deterministe(temps end)
 	{
 		prec = tournee[index];
 		cour = tournee[index-1];
+		
+		distance = donnees->get_dist(cour,prec);
+		
+		temps_courant -= distance; //todo : enlever aussi le temps de service
+		total_cout += distance;
 
-		temps_courant -= donnees->get_dist(prec,cour); //todo : enlever aussi le temps de service
-		total_cout += donnees->get_dist(prec,cour);
-
-        std::cout << "(" << prec << " <- " << cour << ") distance = "  << donnees->get_dist(prec,cour) << ", arrivee a : " <<  temps_courant << std::endl;
+        std::cout << "(" << prec << " <- " << cour << ") distance = "  << distance << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//a l'envers, si on arrive après la fin, on y revient, en y ajoutant l'overlimit.
 		if ( temps_courant > donnees->get_fen_fin(cour) )
