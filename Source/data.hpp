@@ -16,6 +16,8 @@ class data
 	
 	int nb_sommets;
 	
+	temps service;
+	
 	std::vector <temps> distances; //matrice
 	
 	std::vector <temps> fen_deb; //vecteur
@@ -34,6 +36,8 @@ class data
 	
 	temps get_fen_deb(int client);
 	temps get_fen_fin(int client);
+	
+	temps get_service();
 	
 	void display(std::ostream & os);
 	

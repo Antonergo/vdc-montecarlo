@@ -123,6 +123,7 @@ bool 	solution::check_deterministe(temps start)
 	}
 	
 	start_min = temps_courant;
+	start_max = total_wait;
 	
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
@@ -183,7 +184,7 @@ bool    solution::check_reverse_deterministe(temps end)
 		--index;
 	}
 	
-	start_max = temps_courant;
+	start_min = temps_courant;
 	
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
 
@@ -193,13 +194,15 @@ bool    solution::check_reverse_deterministe(temps end)
 bool 	solution::check_normal(temps start, temps taux)
 {
 	temps total_cout = 0.0;
+	temps total_wait = 0.0;
 	temps temps_courant = start;
 	temps dist_fixe;
 	temps dist_norm;
 	int prec;
 	int cour;
 	unsigned index = 1;
-
+	int position_fail = 0;
+	
 	bool res = true;
 
 	//allouer la classe de stats
@@ -210,31 +213,29 @@ bool 	solution::check_normal(temps start, temps taux)
 		exit (EXIT_FAILURE);
 	}
 
-	prec = 0;
-	cour = tournee[0];
-
 	while (res && index <= tournee.size())
 	{
-
+		prec = tournee[index];
+		cour = tournee[index+1];
 
 		dist_fixe = donnees->get_dist(prec,cour);
-		//RNG goes here
+		//appliquer RNG ici
 		dist_norm = loi_normale()(dist_fixe, dist_fixe*taux/100);
-		if (dist_norm < 10.0)
+		if (dist_norm < donnees->get_service())
 		{
-			dist_norm = 10.0;
+			dist_norm = donnees->get_service();
 		}
 
-		std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm << std::endl;
-
+		
 		temps_courant += dist_norm;
 		total_cout += dist_norm;
 
+        std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm  << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
-			//************ TODO : extraire le temps d'attente ici dans la classe Stats
+		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
 			std::cout << "WAIT ... ";
@@ -244,14 +245,9 @@ bool 	solution::check_normal(temps start, temps taux)
 		if ( temps_courant > donnees->get_fen_fin(cour) )
 		{
 			res = false;
-
-			std::cout << "Echec de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
-
-		//tester si quand on échoue que les temps correspondent bien ! (ça a l'air convaincant)
+			
+			position_fail = index;
 		}
-
-		prec = cour;
-		cour = tournee[index];
 
 		++index;
 	}
@@ -263,7 +259,9 @@ bool 	solution::check_normal(temps start, temps taux)
 	}
 	else //echec du test
 	{
-		//sortir l'index/l'ID Client (préalablement enregistré dans notre instance
+		//sortir l'index/l'ID Client (préalablement enregistré dans notre instance)
+		
+		std::cout << "Erreur de fenetre de temps au " << position_fail << "e client (" << tournee[position_fail] << ")" << std::endl;
 	}
 	return res;
 }

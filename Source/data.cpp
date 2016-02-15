@@ -39,6 +39,8 @@ data::data(std::string filename)
   	is >> fen_fin[i];
   }
   
+  service = 10.0; //temporaire
+  
 }
 
 std::string data::get_name()
@@ -83,6 +85,14 @@ temps data::get_fen_fin(int client)
 	
 	return fen_fin[client];
 }
+
+temps data::get_service()
+{
+	return service;
+}
+
+
+
 
 void data::display(std::ostream & os)
 {

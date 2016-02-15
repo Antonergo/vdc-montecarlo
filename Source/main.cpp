@@ -93,9 +93,9 @@ int main (int argc, char * argv[])
 
       s.check_reverse_deterministe(s.get_start_min()); //set start max
 	  
-	  std::cout << "fin min et début max de départ : " << s.get_start_min() << " , " << s.get_start_max() << std::endl;
+	  std::cout << "debut min et début max de départ : " << s.get_start_min() << " , " << s.get_start_max() << std::endl;
 	  
-	  //s.check_normal(s.get_start_max(), 10); //1 seul test à 10% de variance, pas encore d'extraction des données
+	  //s.check_normal(s.get_start_min(), 10); //1 seul test à 10% de variance
 
   }
 
