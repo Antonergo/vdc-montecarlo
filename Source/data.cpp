@@ -201,12 +201,12 @@ void data::afficherDistances(std::ostream & os)
 	os << "Matrice des distances" << std::endl;
 	for(unsigned int i = 0; i < distances.size(); ++i)
 	{
-		os << distances[i] << " ";
-		
 		if(i!= 0 && i%nb_sommets == 0)
 		{
 			os << std::endl;
 		}
+		
+		os << distances[i] << " ";
 	}
 }
 

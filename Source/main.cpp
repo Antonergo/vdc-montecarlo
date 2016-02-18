@@ -22,10 +22,10 @@
 int main (int argc, char * argv[])
 {
   //std::string prefix("Instances/Data/"); //Windows
-  //std::string soluce("Instances/Solutions/Sols.txt");
+  //std::string soluce("Instances/Solution_Simple/Sols.txt");
 
   std::string prefix("../Instances/Data_Cordeau/"); //Linux
-  //std::string soluce("../Instances/Solutions/Sols.txt");
+  //std::string soluce("../Instances/Solution_Simple/Sols.txt");
 
   std::string filename("c103"); //argument de départ
 
@@ -74,7 +74,8 @@ int main (int argc, char * argv[])
   //afficher l'instance
   std::cout << "nom du fichier : " << filename << std::endl;
   d.afficherData(std::cout);
-
+  d.calculerDistances();
+  d.afficherDistances(std::cout);
   //std::cout << data << std::endl; //surcharge de << pas encore fait
 
   /*
