@@ -95,7 +95,7 @@ int main (int argc, char * argv[])
 	  
 	  std::cout << "debut min et début max de départ : " << s.get_start_min() << " , " << s.get_start_max() << std::endl;
 	  
-	  //s.check_normal(s.get_start_min(), 10); //1 seul test à 10% de variance
+	  s.check_normal(s.get_start_min(), 30); //1 seul test à 30% de variance
 
   }
 

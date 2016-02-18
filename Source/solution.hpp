@@ -51,7 +51,7 @@ class solution
 
 	int id_depot;
 	std::vector <int> tournee; //vecteur fixé lors d'une évaluation, peut être sujet à des changements entre deux évaluations
-	std::vector <temps> arrivee; //vecteur temporaire de calculs lors d'une évaluation
+	std::vector <temps> arrivee; //vecteur temporaire de calculs lors d'une évaluation -> sert pour l'extraction dans les statistiques.
 
 
 	public :

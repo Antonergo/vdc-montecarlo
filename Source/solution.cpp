@@ -41,10 +41,14 @@ solution::solution(std::string & solname, data * d)
 	}
 	else
 	{
+      
       //donner le numéro de dépot
       id_depot = 0;
-	  //sortir le temps total et se caler sur la tournée.
+	  
+	  //sortir le temps total théorique (optionnel)
 	  is >> total >> str;
+	  
+	  
 	  //creer la tournee
 
 	  tournee.push_back(id_depot);
@@ -55,6 +59,10 @@ solution::solution(std::string & solname, data * d)
 	  }
   	  tournee.push_back(id_depot);
 	}
+	
+	//une fois la tournee complete, on donne la bonne taille du vecteur d'arrivee
+	
+	arrivee.resize(tournee.size());
 }
 
 void solution::display(std::ostream & os)
@@ -89,7 +97,9 @@ bool 	solution::check_deterministe(temps start)
 	}
 
 	std::cout << "depart au temps " << start << std::endl;
-		
+	
+	arrivee[0] = start;
+	
 	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
@@ -102,13 +112,15 @@ bool 	solution::check_deterministe(temps start)
 
         std::cout << "(" << prec << " -> " << cour << ") : "<< distance  << ", arrivee a : " <<  temps_courant << std::endl;
 
-		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
+		//ICI : exporter temps_courant dans un vecteur de statistiques à la position [index]
+		arrivee[index+1] = temps_courant;
+		
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
 		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
-			std::cout << "WAIT ... ";
+			std::cout << "attente jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -168,7 +180,7 @@ bool    solution::check_reverse_deterministe(temps end)
 		    total_overlimit += temps_courant - donnees->get_fen_fin(cour);
 			temps_courant = donnees->get_fen_fin(cour);
 
-			std::cout << "OVERLIMIT ... ";
+			std::cout << "retard jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -200,7 +212,7 @@ bool 	solution::check_normal(temps start, temps taux)
 	temps dist_norm;
 	int prec;
 	int cour;
-	unsigned index = 1;
+	unsigned index = 0;
 	int position_fail = 0;
 	
 	bool res = true;
@@ -212,8 +224,10 @@ bool 	solution::check_normal(temps start, temps taux)
 	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
 		exit (EXIT_FAILURE);
 	}
-
-	while (res && index <= tournee.size())
+	
+	std::cout << "debut tournee au temps : " << start << std::endl;
+	
+	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
 		cour = tournee[index+1];
@@ -238,7 +252,7 @@ bool 	solution::check_normal(temps start, temps taux)
 		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
-			std::cout << "WAIT ... ";
+			std::cout << "attente jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -255,7 +269,7 @@ bool 	solution::check_normal(temps start, temps taux)
 
 	if (res) //reussite du parcours
 	{
-		std::cout << "distance totale : " << total << " (deterministe) ; " << total_cout << " (calcule)" << std::endl;
+		std::cout << "distance totale : " << total << " (reel)" << std::endl;
 	}
 	else //echec du test
 	{
