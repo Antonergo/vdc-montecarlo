@@ -1,17 +1,16 @@
 #include "stats.hpp"
 #include <cstdlib>
 
+
+void Statistique::set_arrivee(std::vector <temps> & valeurs)
+{
+	arrivee = valeurs;
+}
+
+
+
+
 data* Tableau::donnees = NULL;
-
-
-
-
-
-
-
-
-
-
 
 
 Tableau::Tableau(int iterations) //générer ici les tests réels ?

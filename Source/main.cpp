@@ -24,10 +24,10 @@ int main (int argc, char * argv[])
   //std::string prefix("Instances/Data/"); //Windows
   //std::string soluce("Instances/Solutions/Sols.txt");
 
-  std::string prefix("../Instances/Data/"); //Linux
-  std::string soluce("../Instances/Solutions/Sols.txt");
+  std::string prefix("../Instances/Data_Cordeau/"); //Linux
+  //std::string soluce("../Instances/Solutions/Sols.txt");
 
-  std::string filename("rc_207.4.txt"); //argument de départ
+  std::string filename("c103"); //argument de départ
 
 
 	std::srand(std::time(0));
@@ -73,11 +73,12 @@ int main (int argc, char * argv[])
 
   //afficher l'instance
   std::cout << "nom du fichier : " << filename << std::endl;
-  //d.display(std::cout);
+  d.afficherData(std::cout);
 
   //std::cout << data << std::endl; //surcharge de << pas encore fait
 
-
+  /*
+	
   // lire la solution
   solution s(soluce, &d);
 
@@ -98,7 +99,8 @@ int main (int argc, char * argv[])
 	  s.check_normal(s.get_start_min(), 30); //1 seul test à 30% de variance
 
   }
-
+  
+  */
 
   return 0;
 }
