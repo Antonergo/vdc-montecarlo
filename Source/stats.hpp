@@ -4,6 +4,7 @@
 #include "data.hpp"
 #include "solution.hpp"
 #include <iostream>
+#include <vector>
 
 /*
 Une instance statistique par test réel
@@ -21,6 +22,8 @@ class Statistique
 	Statistique();
 	~Statistique();
 	
+	void set_arrivee(std::vector <temps> & valeurs);
+	
 	void generer (solution * sol);
 };
 
@@ -32,6 +35,8 @@ class Tableau
 	private :
 	
 	static data * donnees;
+	
+	bool deterministe;
 	
 	solution * sol;
 	
@@ -49,7 +54,7 @@ class Tableau
 	
 };
 
-void create_HTML(std::ostream & os, std::vector <Tableau> all_results); //à mettre dans le main ?
+void create_HTML(std::ostream & os, std::vector <Tableau> & all_results); //à mettre dans le main ?
 
 
 

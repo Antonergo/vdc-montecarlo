@@ -269,7 +269,7 @@ bool 	solution::check_normal(temps start, temps taux)
 
 	if (res) //reussite du parcours
 	{
-		std::cout << "distance totale : " << total << " (reel)" << std::endl;
+		std::cout << "distance totale : " << total_cout << " (reel)" << std::endl;
 	}
 	else //echec du test
 	{
