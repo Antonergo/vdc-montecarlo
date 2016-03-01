@@ -57,7 +57,9 @@ class solution
 	public :
 
 	solution(std::string & filename, data * d);
-
+	solution(temps temps_total, std::vector<int> tournee_entree, data * d);
+	
+	
 	int 	get_tournee(int index);
 	temps 	get_arrivee(int index);
 

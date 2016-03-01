@@ -65,6 +65,21 @@ solution::solution(std::string & solname, data * d)
 	arrivee.resize(tournee.size());
 }
 
+solution::solution(temps temps_total, std::vector<int> tournee_entree, data * d)
+{
+	donnees = d;
+	
+	total = temps_total;
+	
+	tournee = tournee_entree;
+	
+	std::cout << "tournee cree de taille " << tournee.size() << std::endl;
+	
+	arrivee.resize(tournee.size());
+}
+
+
+
 void solution::display(std::ostream & os)
 {
 	os << "cout total deterministe : " << total << "\nordre de tournee : ";

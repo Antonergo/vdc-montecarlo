@@ -25,12 +25,10 @@ int main (int argc, char * argv[])
   //std::string soluce("Instances/Solution_Simple/Sols.txt");
 
   std::string prefix("../Instances/Data_Cordeau/"); //Linux
-  //std::string soluce("../Instances/Solution_Simple/Sols.txt");
+  std::string soluce("../Instances/Solution_Cordeau/");
 
-  std::string filename("c103"); //argument de départ
-
-
-	std::srand(std::time(0));
+  std::string filename("c103"); //argument de départ (modifiable par user input)
+  std::srand(std::time(0));
 
   // check the command line
   if (argc > 2)
@@ -75,33 +73,82 @@ int main (int argc, char * argv[])
   std::cout << "nom du fichier : " << filename << std::endl;
   d.afficherData(std::cout);
   d.calculerDistances();
-  d.afficherDistances(std::cout);
+  //d.afficherDistances(std::cout);
   //std::cout << data << std::endl; //surcharge de << pas encore fait
-
-  /*
-	
-  // lire la solution
-  solution s(soluce, &d);
-
-  s.display(std::cout);
-  // tester la solution de manière déterministe
-  if (!s.check_deterministe(0)) //set start min
+  
+  //creer solutions
+  std::vector <solution*> v_sols;
+  v_sols.clear();
+  v_sols.resize(d.get_nb_vehicules());
+  
+  std::string soluce_path = soluce + filename + ".res";
+  std::string tmp;
+  
+  std::ifstream is(soluce_path.c_str());
+  if (!is)
   {
-	  std::cout << "la verification deterministe a echouee, il y a peu de chance qu'une vérification aleatoire reussisse" << std::endl;
-  }
-  else
-  {
-	  std::cout << "la verification deterministe a reussie, on fait a l'envers." << std::endl;
-
-      s.check_reverse_deterministe(s.get_start_min()); //set start max
-	  
-	  std::cout << "debut min et début max de départ : " << s.get_start_min() << " , " << s.get_start_max() << std::endl;
-	  
-	  s.check_normal(s.get_start_min(), 30); //1 seul test à 30% de variance
-
+	  std::cerr << "Error: unable to open file \'" << filename << "\'" << std::endl;
+	  exit (EXIT_FAILURE);
   }
   
-  */
+  is >> tmp; //on ecarte le premier nombre, qui semble etre le makespan
+  
+  for (int i = 0; i< d.get_nb_vehicules(); ++i)
+  {
+	temps total = 0;
+	std::vector <int> tournee_tmp;
+	tournee_tmp.clear();
+	
+	int tournee_depot = -1;
+	int tournee_element = -1;
+	  
+	is >> tmp >> tmp >> total >> tmp;
+	std::cout << "total : " << total << std::endl;
+	
+	is >> tournee_depot >> tmp;
+	tournee_tmp.push_back(tournee_depot);
+	
+	while (tournee_element != tournee_depot)
+	{
+		is >> tournee_element >> tmp;
+		tournee_tmp.push_back(tournee_element);
+	}
+	
+	solution * s = new solution(total, tournee_tmp, &d);
+	s->display(std::cout);
+	
+	v_sols[i] = s;
+  }
+  
+  //tester les solutions
+  
+  for (unsigned i = 0; i< v_sols.size(); ++i)
+  {
+	solution & sol = *v_sols[i];
+	// tester la solution de manière déterministe
+	if (!sol.check_deterministe(0)) //set start min
+	{
+	  std::cout << "la verification deterministe a echouee, il y a peu de chance qu'une vérification aleatoire reussisse" << std::endl;
+	}
+	else
+	{
+	  std::cout << "la verification deterministe a reussie, on fait a l'envers." << std::endl;
+
+	  sol.check_reverse_deterministe(sol.get_start_min()); //set start max
+	  
+	  std::cout << "debut min et début max de départ : " << sol.get_start_min() << " , " << sol.get_start_max() << std::endl;
+	  
+	  //sol.check_normal(s.get_start_min(), 30); //1 seul test à 30% de variance
+
+	}
+  
+  }
+  //fin : libérer ressources
+  
+  for (unsigned i = 0; i< v_sols.size(); ++i)
+  {
+	  delete(v_sols[i]);
+  }
 
   return 0;
 }
