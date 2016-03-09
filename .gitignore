@@ -36,3 +36,9 @@
 */exe
 *.out
 *.app
+
+# Code blocks files
+*.depend
+*.layout
+*.cbp
+bin/*

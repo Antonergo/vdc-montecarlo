@@ -41,14 +41,14 @@ solution::solution(std::string & solname, data * d)
 	}
 	else
 	{
-      
+
       //donner le numéro de dépot
       id_depot = 0;
-	  
+
 	  //sortir le temps total théorique (optionnel)
 	  is >> total >> str;
-	  
-	  
+
+
 	  //creer la tournee
 
 	  tournee.push_back(id_depot);
@@ -59,22 +59,22 @@ solution::solution(std::string & solname, data * d)
 	  }
   	  tournee.push_back(id_depot);
 	}
-	
+
 	//une fois la tournee complete, on donne la bonne taille du vecteur d'arrivee
-	
+
 	arrivee.resize(tournee.size());
 }
 
 solution::solution(temps temps_total, std::vector<int> tournee_entree, data * d)
 {
 	donnees = d;
-	
+
 	total = temps_total;
-	
+
 	tournee = tournee_entree;
-	
+
 	std::cout << "tournee cree de taille " << tournee.size() << std::endl;
-	
+
 	arrivee.resize(tournee.size());
 }
 
@@ -95,9 +95,9 @@ bool 	solution::check_deterministe(temps start)
 {
 	temps total_cout = 0.0;
 	temps total_wait = 0.0;
-	
+
 	temps distance = 0.0;
-	
+
 	temps temps_courant = start;
 	int prec;
 	int cour;
@@ -112,16 +112,16 @@ bool 	solution::check_deterministe(temps start)
 	}
 
 	std::cout << "depart au temps " << start << std::endl;
-	
+
 	arrivee[0] = start;
-	
+
 	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
 		cour = tournee[index+1];
-		
+
 		distance = donnees->get_dist(prec,cour);
-		
+
 		temps_courant += distance; //todo : prendre en compte le temps de service ? -- dans les graphes !!
 		total_cout += distance;
 
@@ -129,7 +129,7 @@ bool 	solution::check_deterministe(temps start)
 
 		//ICI : exporter temps_courant dans un vecteur de statistiques à la position [index]
 		arrivee[index+1] = temps_courant;
-		
+
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
 		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
@@ -148,10 +148,10 @@ bool 	solution::check_deterministe(temps start)
 
 		++index;
 	}
-	
+
 	start_min = temps_courant;
 	start_max = total_wait;
-	
+
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
 	return res;
@@ -161,7 +161,7 @@ bool    solution::check_reverse_deterministe(temps end)
 {
     temps total_cout = 0.0;
 	temps total_overlimit = 0.0;
-	temps temps_courant = end;
+	temps temps_courant = end + 0.00001; //ajout pour éviter un glissement d'arrondi dérrière une fenetre de temps
 	temps distance = 0.0;
 	int prec;
 	int cour;
@@ -174,16 +174,16 @@ bool    solution::check_reverse_deterministe(temps end)
 	    std::cerr << "Erreur: solution vide" << std::endl;
 		exit (EXIT_FAILURE);
 	}
-	
+
 	std::cout << "'fin' au temps " << end << std::endl;
 
 	while (res && index > 0)
 	{
 		prec = tournee[index];
 		cour = tournee[index-1];
-		
+
 		distance = donnees->get_dist(cour,prec);
-		
+
 		temps_courant -= distance; //todo : enlever aussi le temps de service
 		total_cout += distance;
 
@@ -205,14 +205,14 @@ bool    solution::check_reverse_deterministe(temps end)
 		    //ce serait donc un bug de ma part .-.
 			res = false;
 
-			//std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
+			std::cout << "ERREUR FATALE de fenetre de temps au " << index << "e client (" << cour << ") temps minimum requis :" << donnees->get_fen_deb(cour)  << std::endl;
 		}
 
 		--index;
 	}
-	
+
 	start_min = temps_courant;
-	
+
 	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
 
 	return res;
@@ -224,12 +224,13 @@ bool 	solution::check_normal(temps start, temps taux)
 	temps total_wait = 0.0;
 	temps temps_courant = start;
 	temps dist_fixe;
+	temps tps_service = 0.0;
 	temps dist_norm;
 	int prec;
 	int cour;
 	unsigned index = 0;
 	int position_fail = 0;
-	
+
 	bool res = true;
 
 	//allouer la classe de stats
@@ -239,25 +240,36 @@ bool 	solution::check_normal(temps start, temps taux)
 	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
 		exit (EXIT_FAILURE);
 	}
-	
+
 	std::cout << "debut tournee au temps : " << start << std::endl;
-	
+
 	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
 		cour = tournee[index+1];
 
+		if (index == 0)
+		{ //depart depuis le dépot : pas de temps de service
+		    tps_service = 0.0;
+		}
+		else
+        {
+            tps_service = donnees->get_service();
+        }
+
 		dist_fixe = donnees->get_dist(prec,cour);
+
+
 		//appliquer RNG ici
-		dist_norm = loi_normale()(dist_fixe, dist_fixe*taux/100);
-		if (dist_norm < donnees->get_service())
+		dist_norm = tps_service + loi_normale()(dist_fixe - tps_service, (dist_fixe - tps_service)*taux/100);
+		if (dist_norm < donnees->get_service()) //si par pure chance (ou variance abusément élevée), on a le temps de trajet parfait (temps de distance négatif), on se cale sur la valeur du temps de service
 		{
 			dist_norm = donnees->get_service();
 		}
 
-		
+
 		temps_courant += dist_norm;
-		total_cout += dist_norm;
+		total_cout += dist_norm - tps_service;
 
         std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm  << ", arrivee a : " <<  temps_courant << std::endl;
 
@@ -274,7 +286,7 @@ bool 	solution::check_normal(temps start, temps taux)
 		if ( temps_courant > donnees->get_fen_fin(cour) )
 		{
 			res = false;
-			
+
 			position_fail = index;
 		}
 
@@ -284,12 +296,12 @@ bool 	solution::check_normal(temps start, temps taux)
 
 	if (res) //reussite du parcours
 	{
-		std::cout << "distance totale : " << total_cout << " (reel)" << std::endl;
+		std::cout << "distance totale (moins les couts) : " << total_cout << "  attente totale : " << total_wait << std::endl;
 	}
 	else //echec du test
 	{
 		//sortir l'index/l'ID Client (préalablement enregistré dans notre instance)
-		
+
 		std::cout << "Erreur de fenetre de temps au " << position_fail << "e client (" << tournee[position_fail] << ")" << std::endl;
 	}
 	return res;
