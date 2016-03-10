@@ -7,6 +7,7 @@
 #include <fstream> //ifstream
 //#include <sstream>
 #include <stdlib.h> //exit()
+#include <algorithm> //fill
 
 
 solution::solution(std::string & solname, data * d)
@@ -87,7 +88,7 @@ void solution::display(std::ostream & os)
 	{
 		os << tournee[i] << " ";
 	}
-	os << std::endl;
+	os << "(taille : " << tournee.size() << ")" << std::endl;
 }
 
 
@@ -111,7 +112,7 @@ bool 	solution::check_deterministe(temps start)
 		exit (EXIT_FAILURE);
 	}
 
-	std::cout << "depart au temps " << start << std::endl;
+	//std::cout << "depart au temps " << start << std::endl;
 
 	arrivee[0] = start;
 
@@ -125,7 +126,7 @@ bool 	solution::check_deterministe(temps start)
 		temps_courant += distance; //todo : prendre en compte le temps de service ? -- dans les graphes !!
 		total_cout += distance;
 
-        std::cout << "(" << prec << " -> " << cour << ") : "<< distance  << ", arrivee a : " <<  temps_courant << std::endl;
+        //std::cout << "(" << prec << " -> " << cour << ") : "<< distance  << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//ICI : exporter temps_courant dans un vecteur de statistiques à la position [index]
 		arrivee[index+1] = temps_courant;
@@ -135,7 +136,7 @@ bool 	solution::check_deterministe(temps start)
 		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
-			std::cout << "attente jusqu'a " << temps_courant << " ... ";
+			//std::cout << "attente jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -143,16 +144,16 @@ bool 	solution::check_deterministe(temps start)
 		{
 			res = false;
 
-			//std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ")" << std::endl;
+			std::cout << "Erreur de fenetre de temps au " << index << "e client (" << cour << ") temps minimum requis :" << donnees->get_fen_deb(cour)  << std::endl;
 		}
 
 		++index;
 	}
 
-	start_min = temps_courant;
-	start_max = total_wait;
+	start_opti = temps_courant;
+	start_wait = total_wait;
 
-	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
+	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
 	return res;
 }
@@ -175,7 +176,7 @@ bool    solution::check_reverse_deterministe(temps end)
 		exit (EXIT_FAILURE);
 	}
 
-	std::cout << "'fin' au temps " << end << std::endl;
+	//std::cout << "'fin' au temps " << end << std::endl;
 
 	while (res && index > 0)
 	{
@@ -187,7 +188,7 @@ bool    solution::check_reverse_deterministe(temps end)
 		temps_courant -= distance; //todo : enlever aussi le temps de service
 		total_cout += distance;
 
-        std::cout << "(" << prec << " <- " << cour << ") distance = "  << distance << ", arrivee a : " <<  temps_courant << std::endl;
+        //std::cout << "(" << prec << " <- " << cour << ") : "  << distance << ", arrivee a : " <<  temps_courant << std::endl;
 
 		//a l'envers, si on arrive après la fin, on y revient, en y ajoutant l'overlimit.
 		if ( temps_courant > donnees->get_fen_fin(cour) )
@@ -195,7 +196,7 @@ bool    solution::check_reverse_deterministe(temps end)
 		    total_overlimit += temps_courant - donnees->get_fen_fin(cour);
 			temps_courant = donnees->get_fen_fin(cour);
 
-			std::cout << "retard jusqu'a " << temps_courant << " ... ";
+			//std::cout << "retard jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -211,9 +212,16 @@ bool    solution::check_reverse_deterministe(temps end)
 		--index;
 	}
 
-	start_min = temps_courant;
-
-	std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
+	start_opti = temps_courant - 0.00001; //recadrage du micro temps
+	if (start_opti < 0.00001) //exclusion des tout petits nombres après la virgule
+		start_opti = 0;
+	
+	
+	//détermination du temps optimal
+	start_opti = (start_opti < start_wait) ? start_opti / 2 : start_wait;
+	
+	
+	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
 
 	return res;
 }
@@ -229,7 +237,6 @@ bool 	solution::check_normal(temps start, temps taux)
 	int prec;
 	int cour;
 	unsigned index = 0;
-	int position_fail = 0;
 
 	bool res = true;
 
@@ -237,12 +244,14 @@ bool 	solution::check_normal(temps start, temps taux)
 
 	if (!tournee.size())
 	{
-	    std::cerr << "Error: attempting to evaluate an empty solution" << std::endl;
+	    std::cerr << "Erreur: tournee vide. verifiez les donnees dans le fichier adequat Solutions" << std::endl;
 		exit (EXIT_FAILURE);
 	}
 
-	std::cout << "debut tournee au temps : " << start << std::endl;
-
+	//std::cout << "debut tournee au temps : " << start << std::endl;
+	arrivee[0] = start;
+	
+	
 	while (res && index < tournee.size() - 1)
 	{
 		prec = tournee[index];
@@ -271,15 +280,16 @@ bool 	solution::check_normal(temps start, temps taux)
 		temps_courant += dist_norm;
 		total_cout += dist_norm - tps_service;
 
-        std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm  << ", arrivee a : " <<  temps_courant << std::endl;
-
+        //std::cout << "(" << prec << " -> " << cour << ") : "<< dist_norm  << ", arrivee a : " <<  temps_courant << std::endl;
+		arrivee[index+1] = temps_courant;
+		
 		//Le cout ne dépend pas du temps passé, mais uniquement de la distance parcourue
 		if ( temps_courant < donnees->get_fen_deb(cour) )
 		{
 		    total_wait += donnees->get_fen_deb(cour) - temps_courant;
 			temps_courant = donnees->get_fen_deb(cour);
 
-			std::cout << "attente jusqu'a " << temps_courant << " ... ";
+			//std::cout << "attente jusqu'a " << temps_courant << " ... ";
 		}
 		else
 
@@ -287,7 +297,11 @@ bool 	solution::check_normal(temps start, temps taux)
 		{
 			res = false;
 
-			position_fail = index;
+			index_echec = index;
+			
+			std::fill (arrivee.begin()+index,arrivee.end(),-1.0);
+			
+			//std::cout << "Echec : " << index_echec << " (" << cour << ") retard :" << temps_courant - donnees->get_fen_fin(cour) << std::endl;
 		}
 
 		++index;
@@ -296,14 +310,12 @@ bool 	solution::check_normal(temps start, temps taux)
 
 	if (res) //reussite du parcours
 	{
-		std::cout << "distance totale (moins les couts) : " << total_cout << "  attente totale : " << total_wait << std::endl;
+		time_waited = total_wait; //mise en place de l'attribut temporaire pour exportation dans statistique.
+		index_echec = -1;
+		
+		//std::cout << "Complet : " << total_cout << " , attente : " << total_wait << std::endl;
 	}
-	else //echec du test
-	{
-		//sortir l'index/l'ID Client (préalablement enregistré dans notre instance)
-
-		std::cout << "Erreur de fenetre de temps au " << position_fail << "e client (" << tournee[position_fail] << ")" << std::endl;
-	}
+	
 	return res;
 }
 

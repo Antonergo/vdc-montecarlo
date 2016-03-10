@@ -73,27 +73,27 @@ data::data(std::string filename)
 		is >> poubelle;
 		
 		is >> valeur;
-		xVector.push_back(valeur);
-		//is >> xVector[i];
+		xVector.push_back(valeur); //X
 		
 		is >> valeur;
-		yVector.push_back(valeur);
-		//is >> yVector[i];
+		yVector.push_back(valeur); //Y
 		
-		is >> poubelle;
-		is >> poubelle;
-		is >> poubelle;
-		is >> poubelle;
-		is >> poubelle;
-		
-		is >> tmp;
-		fen_deb.push_back(tmp);
-		//is >> fen_deb[i];
+		is >> service; //temps de service
+		is >> poubelle; //capacité demandée (inutile ici)
+		is >> poubelle; // ?
+		is >> poubelle; // ?
+		is >> poubelle; // ?
 		
 		is >> tmp;
-		fen_fin.push_back(tmp);
-		//is >> fen_fin[i];
+		fen_deb.push_back(tmp); //fenetre debut
+		
+		is >> tmp;
+		fen_fin.push_back(tmp); //fenetre fin
 	}
+	
+	is.close();
+	
+	
 	
 	/*
 	// read the distance matrice
@@ -115,8 +115,6 @@ data::data(std::string filename)
 	is >> fen_deb[i];
 	is >> fen_fin[i];
 	}*/
-
-	service = 90.0; //temporaire
 }
 
 std::string data::get_name()
@@ -188,6 +186,7 @@ void data::afficherData(std::ostream & os)
 	os << "Nombre de vehicules : " << nb_vehicules << std::endl;
 	os << "Nombre de clients : " << nb_clients << std::endl;
 	os << "Nombre total de sommets : " << nb_sommets << std::endl << std::endl;
+	os << "Temps de service : " << service << std::endl << std::endl;
 	
 	os << "id\t" << "x\t" << "y\t" << "deb\t" << "fin" << std::endl;
 	for(int i = 0; i < nb_sommets; ++i)

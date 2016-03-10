@@ -22,13 +22,19 @@ class Statistique
 	public :
 
 	Statistique(){}
-	Statistique(solution* sol, data* d);
+	Statistique(solution* sol);
 
-	~Statistique();
+	~Statistique(){}
 
 	void set_arrivee(std::vector <temps> & valeurs);
-
+	
+	int get_position_fail() 		{return position_fail;}
+	temps get_tps_attendu()			{return tps_attendu;}
+	temps get_arrivee(int index) 	{return arrivee[index];}
+	
+	
 	void generer (solution * sol);
+	void display(std::ostream & os);
 };
 
 /*
@@ -38,29 +44,28 @@ class Tableau
 {
 	private :
 
-	static data * donnees;
+	data * donnees;
 
 	int nb_iterations;
 
-	solution * sol;
-
-	std::vector <Statistique*> tableau;
+	solution * soluce;
 
 
     //résultats finaux :
 
     std::vector <int> nombre_echecs;
-
+	int pire_index;
+	
     std::vector <temps> moyenne_arrivee;
 
     temps moyenne_attente;
 
 	public :
 
-	Tableau(int iterations = 10); //générer ici les stats ?
-	~Tableau();
+	std::vector <Statistique*> stats;
 
-	static void set_data(data * donnees);
+	Tableau(data * donnees, solution * sol, int iterations);
+	~Tableau();
 
 	void create_SVG_component(std::ostream & os);
     void calculate_results();

@@ -13,6 +13,7 @@
 
 #include "data.hpp"
 #include "solution.hpp"
+#include "stats.hpp"
 
 //#include <iomanip>
 //#include <chrono>
@@ -21,15 +22,17 @@
 // main function
 int main (int argc, char * argv[])
 {
-  std::string prefix("Instances/Data_Cordeau/"); //Windows
-  std::string soluce("Instances/Solution_Cordeau/");
+  //std::string prefix("Instances/Data_Cordeau/"); //Windows
+  //std::string soluce("Instances/Solution_Cordeau/");
 
-  //std::string prefix("../Instances/Data_Cordeau/"); //Linux
-  //std::string soluce("../Instances/Solution_Cordeau/");
+  std::string prefix("../Instances/Data_Cordeau/"); //Linux
+  std::string soluce("../Instances/Solution_Cordeau/");
 
-  std::string filename("c103"); //argument de départ (modifiable par user input)
+  std::string filename("rc201"); //argument de départ (modifiable par user input)
   std::srand(std::time(0));
-
+  
+  int max_iter = 10;
+  
   // check the command line
   if (argc > 2)
   {
@@ -76,10 +79,14 @@ int main (int argc, char * argv[])
   //d.afficherDistances(std::cout);
   //std::cout << data << std::endl; //surcharge de << pas encore fait
 
-  //creer solutions
+
+  //creer solutions (et Tableaux de sortie)
   std::vector <solution*> v_sols;
+  std::vector <Tableau*> v_tab;
   v_sols.clear();
   v_sols.resize(d.get_nb_vehicules());
+  v_tab.clear();
+  v_tab.resize(d.get_nb_vehicules());
 
   std::string soluce_path = soluce + filename + ".res";
   std::string tmp;
@@ -118,37 +125,73 @@ int main (int argc, char * argv[])
 	s->display(std::cout);
 
 	v_sols[i] = s;
+	
   }
 
+  is.close();
+
+
+  
+  std::ofstream os ("sortie.txt", std::ofstream::out);
+  
   //tester les solutions
 
   for (unsigned i = 0; i< v_sols.size(); ++i)
   {
 	solution & sol = *v_sols[i];
+	
+	std::cout << "\n\n\nSolution numero " << i << std::endl;
+	sol.display(std::cout);
 	// tester la solution de manière déterministe
-	if (!sol.check_deterministe(0)) //set start min
+	
+	sol.check_deterministe(d.get_fen_deb(0));
+	sol.check_reverse_deterministe(d.get_fen_fin(0));
+
+	std::cout << "debut optimisé et temps d'attente total : " << sol.get_start_opti() << " , " << sol.get_start_wait() << std::endl;
+
+
+	//creer dans tableau max_iter Statistique, qui ont chacun un vecteur d'arrivee egale a nb_sommets de data
+	Tableau * tab = new Tableau(&d, &sol, max_iter);
+	
+	for (int j = 0; j < max_iter; ++j)
 	{
-	  std::cout << "la verification deterministe a echouee, il y a peu de chance qu'une vérification aleatoire reussisse" << std::endl;
-	}
-	else
-	{
-	  std::cout << "la verification deterministe a reussie, on fait a l'envers." << std::endl;
+		//std::cout << "Sol " << i << "\tIter " << j << "\t";
+		sol.check_normal(sol.get_start_opti(), 30); //test à 30% de variance, des résultats sont produits !!
 
-	  sol.check_reverse_deterministe(sol.get_start_min()); //set start max
+		Statistique * stat = new Statistique(&sol);
+		
+		//stat->display(std::cout);
+		
+		tab->stats[j] = stat;
 
-	  std::cout << "debut min et debut max de depart : " << sol.get_start_min() << " , " << sol.get_start_max() << std::endl;
-
-	  //sol.check_normal(s.get_start_min(), 30); //1 seul test à 30% de variance
-
+		
 	}
 
+    //calculer et afficher les resultats.
+	tab->calculate_results();
+	
+	os << "Tournee " << i << std::endl;
+	tab->print_results(os);
+	
+	v_tab[i] = tab;
+  
   }
+
+  
+  
+  
+  
   //fin : libérer ressources
 
-  for (unsigned i = 0; i< v_sols.size(); ++i)
-  {
-	  delete(v_sols[i]);
-  }
+	for (unsigned i = 0; i< v_sols.size(); ++i)
+	{
+		delete(v_sols[i]);
+	  
+	}
+	for(unsigned i=0; i < v_tab.size(); ++i)
+	{
+		delete(v_tab[i]);
+	}
 
   return 0;
 }
