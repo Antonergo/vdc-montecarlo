@@ -7,10 +7,12 @@
 #include "data.hpp"
 
 
-data::data(std::string filename)
+data::data(std::string prefix, std::string suffix)
 {
 	temps valeur;
 	temps tmp;
+	
+	std::string filename = prefix + suffix;
 	
 	std::string poubelle;
 	std::string str;
@@ -23,7 +25,8 @@ data::data(std::string filename)
 	exit (EXIT_FAILURE);
 	}
 
-	name = filename.substr(filename.size()-4,4);
+	//name = filename.substr(filename.size()-5,5);
+	name = suffix;
 	
 	// Première ligne
 	is >> poubelle;
@@ -188,11 +191,13 @@ void data::afficherData(std::ostream & os)
 	os << "Nombre total de sommets : " << nb_sommets << std::endl << std::endl;
 	os << "Temps de service : " << service << std::endl << std::endl;
 	
+	/*
 	os << "id\t" << "x\t" << "y\t" << "deb\t" << "fin" << std::endl;
 	for(int i = 0; i < nb_sommets; ++i)
 	{
 		os << i << "\t" << xVector[i] << "\t" << yVector[i] << "\t" << fen_deb[i] << "\t" << fen_fin[i] << std::endl;
 	}
+	*/
 }
 
 void data::afficherDistances(std::ostream & os)

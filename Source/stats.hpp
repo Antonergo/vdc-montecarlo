@@ -55,10 +55,12 @@ class Tableau
 
     std::vector <int> nombre_echecs;
 	int pire_index;
+	int nb_reussites;
 	
     std::vector <temps> moyenne_arrivee;
 
     temps moyenne_attente;
+	
 
 	public :
 

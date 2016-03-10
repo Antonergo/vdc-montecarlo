@@ -44,14 +44,14 @@ Tableau::Tableau(data * d, solution * sol, int iterations) //générer ici les t
 	donnees = d;
 	soluce = sol;
 	stats.clear();
-	if (iterations > 0 && iterations < 100000)
+	if (iterations > 0 && iterations <= 1000000)
 	{
 		stats.resize(iterations);
 		nb_iterations = iterations;
 	}
 	else
 	{
-		std::cout << "nombre d'iterations invalide : entrez un nombre entre 1 et 99999" << std::endl;
+		std::cout << "nombre d'iterations invalide : entrez un nombre entre 1 et 1 000 000" << std::endl;
 		nb_iterations = 0;
 	}
 	
@@ -170,7 +170,7 @@ void Tableau::calculate_results()
 	}
 	
 	pire_index = index_fail_max;
-	
+	nb_reussites = diviseur_attente;
 	//std::cout << "nb de reussites : " << diviseur_attente << "\nclient chiant : " << index_fail_max << " (" << soluce->get_tournee(index_fail_max) << ")" << std::endl;
 	
 }
@@ -179,7 +179,8 @@ void Tableau::print_results(std::ostream & os)
 {
     //print nb iter, moy arrivee, moy attente, et client le plus genant.
     
-    os << "\nRESULTATS : \nnombre iterations : " << nb_iterations << std::endl;
+    os << "nombre iterations : " << nb_iterations << std::endl;
+    os << "nombre reussites : " << nb_reussites << std::endl;
     
     /*
     for (int i = 0; i< nb_iterations; ++i)
@@ -189,14 +190,14 @@ void Tableau::print_results(std::ostream & os)
     */
     
 	os << "moyenne d'arrivee : ";
-    for (unsigned i=0; i< moyenne_arrivee.size(); ++i)
+    for (unsigned i=0; i< moyenne_arrivee.size()-1; ++i)
     {
 		os << moyenne_arrivee[i] << " ";
 	}
 	os << std::endl;
 	
 	os << "pire client : " << pire_index << "(" << nombre_echecs[pire_index] << " echecs)" << std::endl;
-    os << "moyenne d'attente pour ceux qui ont reussi : " << moyenne_attente << std::endl;
+    os << "moyenne d'attente pour ceux qui ont reussi : " << moyenne_attente << "\n\n" << std::endl;
 }
 
 

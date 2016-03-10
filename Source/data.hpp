@@ -35,7 +35,7 @@ class data
 	
 	public :
 	
-	data(std::string filename);
+	data(std::string prefix, std::string suffix);
 	
 	std::string get_name();
 	

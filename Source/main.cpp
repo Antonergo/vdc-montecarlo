@@ -22,16 +22,21 @@
 // main function
 int main (int argc, char * argv[])
 {
+  std::srand(std::time(0));
+	
   //std::string prefix("Instances/Data_Cordeau/"); //Windows
   //std::string soluce("Instances/Solution_Cordeau/");
 
   std::string prefix("../Instances/Data_Cordeau/"); //Linux
   std::string soluce("../Instances/Solution_Cordeau/");
 
-  std::string filename("rc201"); //argument de départ (modifiable par user input)
-  std::srand(std::time(0));
+  std::string filename("c101"); //argument de départ (modifiable par user input)
   
-  int max_iter = 10;
+  std::string output("../Resultats_"+ filename +".txt");
+  
+  std::ofstream os (output.c_str(), std::ofstream::out);
+  
+  int max_iter = 10000;
   
   // check the command line
   if (argc > 2)
@@ -69,12 +74,12 @@ int main (int argc, char * argv[])
 
 
   // lire l'instance
-  data d(prefix + filename);
+  data d(prefix, filename);
 
 
   //afficher l'instance
   std::cout << "nom du fichier : " << filename << std::endl;
-  d.afficherData(std::cout);
+  d.afficherData(os);
   d.calculerDistances();
   //d.afficherDistances(std::cout);
   //std::cout << data << std::endl; //surcharge de << pas encore fait
@@ -130,9 +135,6 @@ int main (int argc, char * argv[])
 
   is.close();
 
-
-  
-  std::ofstream os ("sortie.txt", std::ofstream::out);
   
   //tester les solutions
 
@@ -156,7 +158,7 @@ int main (int argc, char * argv[])
 	for (int j = 0; j < max_iter; ++j)
 	{
 		//std::cout << "Sol " << i << "\tIter " << j << "\t";
-		sol.check_normal(sol.get_start_opti(), 30); //test à 30% de variance, des résultats sont produits !!
+		sol.check_normal(sol.get_start_opti(), 30); //test à 10% de variance, des résultats sont produits !!
 
 		Statistique * stat = new Statistique(&sol);
 		

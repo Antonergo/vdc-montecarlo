@@ -153,7 +153,7 @@ bool 	solution::check_deterministe(temps start)
 	start_opti = temps_courant;
 	start_wait = total_wait;
 
-	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
+	std::cout << "DETER distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_wait << " (waiting)" << std::endl;
 
 	return res;
 }
@@ -221,7 +221,7 @@ bool    solution::check_reverse_deterministe(temps end)
 	start_opti = (start_opti < start_wait) ? start_opti / 2 : start_wait;
 	
 	
-	//std::cout << "distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
+	std::cout << "rev DETER distance totale : " << total << " (estime) ; " << total_cout << " (calcul) ; plus " << total_overlimit << " (overlimit)" << std::endl;
 
 	return res;
 }
@@ -271,9 +271,9 @@ bool 	solution::check_normal(temps start, temps taux)
 
 		//appliquer RNG ici
 		dist_norm = tps_service + loi_normale()(dist_fixe - tps_service, (dist_fixe - tps_service)*taux/100);
-		if (dist_norm < donnees->get_service()) //si par pure chance (ou variance abusément élevée), on a le temps de trajet parfait (temps de distance négatif), on se cale sur la valeur du temps de service
+		if (dist_norm < tps_service) //si par pure chance (ou variance abusément élevée), on a le temps de trajet parfait (temps de distance négatif), on se cale sur la valeur du temps de service
 		{
-			dist_norm = donnees->get_service();
+			dist_norm = tps_service;
 		}
 
 
