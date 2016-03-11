@@ -75,7 +75,13 @@ solution::solution(temps temps_total, std::vector<int> tournee_entree, data * d)
 	tournee = tournee_entree;
 
 	std::cout << "tournee cree de taille " << tournee.size() << std::endl;
-
+	
+	if (tournee.size() <= 2)
+	{
+		std::cerr << "Erreur: tournee vide. (l'instance elle meme peut conporter des erreurs sur le nombre de tournees)" << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	
 	arrivee.resize(tournee.size());
 }
 

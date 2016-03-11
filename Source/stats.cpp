@@ -59,7 +59,7 @@ Tableau::Tableau(data * d, solution * sol, int iterations) //générer ici les t
 
 Tableau::~Tableau()
 {
-	//supprimmer les données dynamique
+	//supprimmer les données dynamiques
 	for (unsigned i = 0; i< stats.size(); ++i)
 	{
 		if(stats[i] != NULL)
@@ -179,8 +179,7 @@ void Tableau::print_results(std::ostream & os)
 {
     //print nb iter, moy arrivee, moy attente, et client le plus genant.
     
-    os << "nombre iterations : " << nb_iterations << std::endl;
-    os << "nombre reussites : " << nb_reussites << std::endl;
+    os << "Taux reussites : " << ((double) nb_reussites) / ((double)nb_iterations) * 100.0 << " %" << std::endl;
     
     /*
     for (int i = 0; i< nb_iterations; ++i)
@@ -189,10 +188,15 @@ void Tableau::print_results(std::ostream & os)
 	}
     */
     
-	os << "moyenne d'arrivee : ";
-    for (unsigned i=0; i< moyenne_arrivee.size()-1; ++i)
+	os << "Fenetre debut\tMoyenne arrivee\tFenetre fin\ttaux echec" << std::endl;
+    for (unsigned i=0; i< moyenne_arrivee.size(); ++i)
     {
-		os << moyenne_arrivee[i] << " ";
+		int num_client = soluce->get_tournee(i);
+		double taux_echec;
+		if (nb_iterations > 0)
+			taux_echec = ((double)nombre_echecs[i]) / ((double)nb_iterations);
+		
+		os << donnees->get_fen_deb(num_client) << "\t" << moyenne_arrivee[i] << "\t" << donnees->get_fen_fin(num_client) << "\t" << taux_echec*100 << std::endl;
 	}
 	os << std::endl;
 	

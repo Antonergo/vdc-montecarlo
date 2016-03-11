@@ -9,7 +9,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 #include <ctime>
+#include <stdlib.h> //exit()
 
 #include "data.hpp"
 #include "solution.hpp"
@@ -32,22 +34,46 @@ int main (int argc, char * argv[])
 
   std::string filename("c101"); //argument de départ (modifiable par user input)
   
-  std::string output("../Resultats_"+ filename +".txt");
-  
-  std::ofstream os (output.c_str(), std::ofstream::out);
-  
+  //valeurs par défaut
+  temps variance = 10.0;
   int max_iter = 10000;
   
   // check the command line
-  if (argc > 2)
+  if (argc > 4 || argc == 1)
   {
-    std::cerr << "Error: arguments attendus (instance name)" << std::endl;
+    std::cerr << "Error: syntaxe attendue : <nom instance> (nb iterations) (variance en %)" << std::endl;
     return 1;
   }
-  else if (argc == 2)
+  if (argc == 4)
+  {
+    variance = atoi(argv[3]);
+  }
+  if (argc >= 3)
+  {
+    max_iter = atoi(argv[2]);
+  }
+  if (argc >= 2)
   {
     filename = argv[1];
   }
+  
+  if (max_iter > 1000000)
+  {
+	std::cerr << "Erreur d'argument: nombre d'iterations trop grand (max : 1 000 000)" << std::endl;
+	exit (EXIT_FAILURE);
+  }
+  else if (max_iter < 1)
+  {
+	std::cerr << "Erreur d'argument: nombre d'iterations invalide" << std::endl;
+	exit (EXIT_FAILURE);
+  }
+  if (variance > 50 || variance < -50)
+  {
+	std::cerr << "Erreur d'argument: variance trop importante (val absolue max : 50)" << std::endl;
+	exit (EXIT_FAILURE);
+  }
+  
+  std::string output("../Resultats_"+ filename +".txt");
 
   /*
   double norm;
@@ -79,7 +105,7 @@ int main (int argc, char * argv[])
 
   //afficher l'instance
   std::cout << "nom du fichier : " << filename << std::endl;
-  d.afficherData(os);
+  
   d.calculerDistances();
   //d.afficherDistances(std::cout);
   //std::cout << data << std::endl; //surcharge de << pas encore fait
@@ -135,6 +161,11 @@ int main (int argc, char * argv[])
 
   is.close();
 
+  std::ofstream os (output.c_str(), std::ofstream::out);
+  d.afficherData(os);
+  
+  os << "nombre iterations : " << max_iter << std::endl;
+  os << "variance : " << variance << "%\n" << std::endl;
   
   //tester les solutions
 
@@ -158,9 +189,9 @@ int main (int argc, char * argv[])
 	for (int j = 0; j < max_iter; ++j)
 	{
 		//std::cout << "Sol " << i << "\tIter " << j << "\t";
-		sol.check_normal(sol.get_start_opti(), 30); //test à 10% de variance, des résultats sont produits !!
+		sol.check_normal(sol.get_start_opti(), variance); //test à X% de variance, des résultats sont produits !!
 
-		Statistique * stat = new Statistique(&sol);
+		Statistique * stat = new Statistique(&sol); //les résultats sont exportés
 		
 		//stat->display(std::cout);
 		
@@ -184,6 +215,8 @@ int main (int argc, char * argv[])
   
   
   //fin : libérer ressources
+	
+	os.close();
 
 	for (unsigned i = 0; i< v_sols.size(); ++i)
 	{
